@@ -13,65 +13,7 @@ def get_err():
     traceback.print_exc(file=f)
     return f.getvalue( )
 
-class mtgox:
-    timeout = 15
-    tryout = 8
-
-    def __init__(self, key='', secret='', agent='btc_bot'):
-        self.key, self.secret, self.agent = key, secret, agent
-        self.time = {'init': time.time(), 'req': time.time()}
-        self.reqs = {'max': 10, 'window': 10, 'curr': 0}
-        self.base = 'https://mtgox.com/api/2/'
-
-    def throttle(self):
-        # check that in a given time window (10 seconds),
-        # no more than a maximum number of requests (10)
-        # have been sent, otherwise sleep for a bit
-        diff = time.time() - self.time['req']
-        if diff > self.reqs['window']:
-            self.reqs['curr'] = 0
-            self.time['req'] = time.time()
-        self.reqs['curr'] += 1
-        if self.reqs['curr'] > self.reqs['max']:
-            print 'Request limit reached...'
-            time.sleep(self.reqs['window'] - diff)
-
-    def makereq(self, path, data):
-        # bare-bones hmac rest sign
-        return urllib2.Request(self.base + path, data, {
-            'User-Agent': self.agent,
-            'Rest-Key': self.key,
-            'Rest-Sign': base64.b64encode(str(hmac.new(base64.b64decode(self.secret), path + chr(0) + data, hashlib.sha512).digest())),
-        })
-
-    def req(self, path, inp={}):
-        t0 = time.time()
-        tries = 0
-        while True:
-            # check if have been making too many requests
-            self.throttle()
-
-            try:
-                # send request to mtgox
-                inp['nonce'] = str(int(time.time() * 1e6))
-                inpstr = urllib.urlencode(inp.items())
-                req = self.makereq(path, inpstr)
-                response = urllib2.urlopen(req, inpstr)
-
-                # interpret json response
-                output = json.load(response)
-                if 'error' in output:
-                    raise ValueError(output['error'])
-                return output
-                
-            except Exception as e:
-                print "Error: %s" % e, e.read()
-
-            # don't wait too long
-            tries += 1
-            if time.time() - t0 > self.timeout or tries > self.tryout:
-                raise Exception('Timeout')
-
+from mtgox import mtgox
 gox = mtgox(key, secret, 'funny-bot-bitcoin')
 rbtc = 100000000
 rusd = 100000
@@ -124,6 +66,12 @@ def quote(ctype, amount):
 def now():
     return datetime.datetime.now()
 
+def current_bid_price():
+    return quote('bid', rbtc)['data']['amount']
+
+def current_ask_price():
+    return quote('ask', rbtc)['data']['amount']
+
 class Bot(object):
     def __init__(self, max_btc, max_usd, init_action, init_price, trigger_percent):
         print now(), 'init_bot', max_btc, max_usd, init_action, init_price, trigger_percent
@@ -137,9 +85,9 @@ class Bot(object):
         wallets = get_wallets()
         my_usd = int(wallets['USD']['Balance']['value_int'])
         my_btc = int(wallets['BTC']['Balance']['value_int'])
-        current_price = int(ticker2()['last']['value_int'])
-        print now(), 'run_once', my_btc, my_usd, current_price, self.next_action, self.next_price
         if self.next_action=='sell':
+            current_price = current_ask_price()
+            print now(), 'run_once', my_btc, my_usd, current_price, self.next_action, self.next_price
             amount = min(self.max_btc, my_btc)
             if current_price>=self.next_price or random.random()<=0.01:
                 sell(amount)
@@ -147,6 +95,8 @@ class Bot(object):
                 self.next_price = int(current_price*(1-self.trigger_percent))
                 print now(), 'sell ', amount
         elif self.next_action=='buy' or random.random()>=0.99:
+            current_price = current_bid_price()
+            print now(), 'run_once', my_btc, my_usd, current_price, self.next_action, self.next_price
             money = min(self.max_usd, my_usd)
             amount = int(money*1.0/current_price)*rbtc
             if current_price<=self.next_price:
@@ -161,7 +111,7 @@ class Bot(object):
                 self.run_once()
             except:
                 print now(), "Error - ", get_err()
-            time.sleep(3*60)
+            time.sleep(2*60)
 
         
 if __name__=='__main__':
