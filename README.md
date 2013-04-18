@@ -3,6 +3,9 @@ funny-bot-bitcoin
 
 Funny Bot for Mtgox Bitcoin Auto Transaction
 
+* You take Full responsibility for Your money and bitcoin.
+* You should understand what are you doing when you use funny-bot-bitcoin.
+
 How to use
 =================
     First: Set Yourself Mtgox Key and Secrect in main.py
