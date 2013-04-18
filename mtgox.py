@@ -4,6 +4,12 @@
 # Don't request results more often than every 10 seconds, you risk being blocked by the anti-DDoS filters
 
 import time,hmac,base64,hashlib,urllib,urllib2,json
+try:
+    import urllib3
+    http = urllib3.PoolManager()
+    http = None #bug waitting fix
+except:
+    http = None
 
 class mtgox:
     timeout = 15
@@ -30,11 +36,14 @@ class mtgox:
 
     def makereq(self, path, data):
         # bare-bones hmac rest sign
-        return urllib2.Request(self.base + path, data, {
+        return urllib2.Request(self.base + path, data, self.get_headers(path, data))
+
+    def get_headers(self, path, data):
+        return {
             'User-Agent': self.agent,
             'Rest-Key': self.key,
             'Rest-Sign': base64.b64encode(str(hmac.new(base64.b64decode(self.secret), path + chr(0) + data, hashlib.sha512).digest())),
-        })
+        }
 
     def req(self, path, inp={}):
         t0 = time.time()
@@ -47,17 +56,29 @@ class mtgox:
                 # send request to mtgox
                 inp['nonce'] = str(int(time.time() * 1e6))
                 inpstr = urllib.urlencode(inp.items())
-                req = self.makereq(path, inpstr)
-                response = urllib2.urlopen(req, inpstr)
+                if http:
+                    # why not work
+                    #r = http.urlopen('POST', self.base + path, body=inpstr, headers=self.get_headers(path, inpstr))
+                    r = http.request('POST', self.base+path, inp, headers=self.get_headers(path, inpstr))
+                    output = json.loads(r.data)
+                    print output
+                else:
+                    req = self.makereq(path, inpstr)
+                    response = urllib2.urlopen(req, inpstr)
+                    output = json.load(response)
 
-                # interpret json response
-                output = json.load(response)
                 if 'error' in output:
                     raise ValueError(output['error'])
+
                 return output
-                
+
+            except urllib2.HTTPError, e: 
+                output = json.load(e)
+                print "Error: %s" % output['error']
+
             except Exception as e:
-                print "Error: %s" % e, e.read()
+                print "Error: %s" % e
+
 
             # don't wait too long
             tries += 1

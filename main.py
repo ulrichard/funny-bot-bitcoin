@@ -4,8 +4,8 @@ https://github.com/perol/funny-bot-bitcoin
 
 import time, hmac, base64, hashlib, urllib, urllib2, json, sys, datetime, random
 
-key = '232fd807-607d-47f7-8a15-93e32683293b'
-secret = '9UmQT2PJ2feMa7b8hCD2ttDLKWjiAdsv4GbGmtv4LSV8s8a9FhmkutE+YMefNs0tz9LSiezIJgnYwshkQJWxfw=='
+key = 'your key'
+secret = 'your secret'
 
 import traceback, cStringIO
 def get_err():
@@ -17,6 +17,9 @@ from mtgox import mtgox
 gox = mtgox(key, secret, 'funny-bot-bitcoin')
 rbtc = 100000000
 rusd = 100000
+
+def now():
+    return datetime.datetime.utcnow()
 
 def ticker():
     return json.loads(urllib2.urlopen('http://data.mtgox.com/api/1/BTCUSD/ticker').read())['return']
@@ -44,27 +47,24 @@ def sell(amount, price=None):
         return gox.req('BTCUSD/money/order/add', {'amount_int':amount, 'type': 'ask', 'price_int': price})
 
 def cancel(order_id):
-    return gox.req('BTCUSD/money/order/cancel', {'oid': order_id})
+    return gox.req('money/order/cancel', {'oid': order_id})
 
 def cancel_all():
     res  = []
     for order in get_orders():
-        res.append(gox.req('BTCUSD/money/order/cancel', {'oid': order['oid']}))
+        res.append(cancel(order['oid']))
     return res
 
 def get_order_result(ctype, order_id):
     #only for complete order
     #ctype: bid or ask
-    return gox.req('BTCUSD/money/order/result', {'type': ctype, 'order': order_id})
+    return gox.req('money/order/result', {'type': ctype, 'order': order_id})
 
 def lag():
-    return gox.req('BTCUSD/money/order/lag')
+    return gox.req('money/order/lag')
 
 def quote(ctype, amount):
     return gox.req('BTCUSD/money/order/quote', {'amount': amount, 'type': ctype}) 
-
-def now():
-    return datetime.datetime.now()
 
 def current_bid_price():
     return quote('bid', rbtc)['data']['amount']
@@ -90,6 +90,7 @@ class Bot(object):
             print now(), 'run_once', my_btc, my_usd, current_price, self.next_action, self.next_price
             amount = min(self.max_btc, my_btc)
             if current_price>=self.next_price or random.random()<=0.01:
+                print now(), 'begin sell ', amount
                 sell(amount)
                 self.next_action = 'buy'
                 self.next_price = int(current_price*(1-self.trigger_percent))
@@ -100,6 +101,7 @@ class Bot(object):
             money = min(self.max_usd, my_usd)
             amount = int(money*1.0/current_price)*rbtc
             if current_price<=self.next_price:
+                print now(), 'begin buy', amount
                 buy(amount)
                 self.next_action = 'sell'
                 self.next_price = int(current_price*(1+self.trigger_percent))
