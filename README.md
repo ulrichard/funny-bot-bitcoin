@@ -1,6 +1,8 @@
 funny-bot-bitcoin
 =================
 
+![funny bot bitcoin](/funny-bot-bitcoin.png "BOT")
+
 Funny Bot for Mtgox Bitcoin Auto Transaction
 
 * funny-bot-bitcoin is very fresh and it's strategy is VERY idiotic, 
