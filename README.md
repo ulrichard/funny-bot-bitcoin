@@ -12,7 +12,7 @@ Funny Bot for Mtgox Bitcoin Auto Transaction
 
 How to use
 =================
-    First: Set Yourself Mtgox Key and Secrect in main.py
+    First: Set Yourself Mtgox Key and Secrect in mtgox_key.py
 
     Then: Run command below:
 
