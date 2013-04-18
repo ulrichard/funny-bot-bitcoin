@@ -28,6 +28,16 @@ How to use
     * init_price: price that trigger init_action
     * trigger_percent: price change percent to trigger bot action(sell or buy)
 
+How funny-bot-bitcoin work
+=================
+
+    init_action(sell/buy).... Sell ==> Buy ==> Sell ==> Buy ==> Sell ==> Buy==> Sell ==> Buy
+
+    Every 2 minutes, funny-bot-bitcoin watch the newest price, when it higher/lower than the init_price, trigger init_action(sell/buy)
+    After init_action, sell/buy alternately begin the current action
+    When the newest price higher/lower than  previous_price*(1 -/+ trigger_percent), then trigger the current action(sell/buy)
+
+
 Utility
 =================
 
