@@ -42,3 +42,9 @@ Utility
     sell btc:
     python main.py sell 1.1 100.10    #sell.1 btc price: $100.10
 
+    
+Donate
+=================
+bitcoin address: 14DTHftDBvb1XSigevSYYNGmQ9iA182xor
+
+
