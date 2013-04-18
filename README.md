@@ -39,9 +39,10 @@ How funny-bot-bitcoin work
     After init_action, sell/buy alternately begin the current action
 
     When the newest price higher/lower than  previous_price*(1 -/+ trigger_percent), 
-        OR 1/100 Probability trigger the current action whatever the newest price is.
-
     then trigger the current action(sell/buy)
+
+    OR 1/100 Probability trigger the current action whatever the newest price is.
+
 
 
 Utility
