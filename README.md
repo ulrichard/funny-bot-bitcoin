@@ -44,9 +44,14 @@ Utility
     buy btc:
     python main.py buy 1.1 100.10    #buy 1.1 btc price: $100.10
 
+    buy btc at the market price:
+    python main.py buy 1.1     #buy 1.1 btc at the market price
+
     sell btc:
     python main.py sell 1.1 100.10    #sell.1 btc price: $100.10
 
+    sell btc at the market price:
+    python main.py sell 1.1    #sell.1 btc at the market price
     
 Donate
 =================
