@@ -7,7 +7,6 @@ import time,hmac,base64,hashlib,urllib,urllib2,json
 try:
     import urllib3
     http = urllib3.PoolManager()
-    http = None #bug waitting fix
 except:
     http = None
 
@@ -57,11 +56,10 @@ class mtgox:
                 inp['nonce'] = str(int(time.time() * 1e6))
                 inpstr = urllib.urlencode(inp.items())
                 if http:
-                    # why not work
-                    #r = http.urlopen('POST', self.base + path, body=inpstr, headers=self.get_headers(path, inpstr))
-                    r = http.request('POST', self.base+path, inp, headers=self.get_headers(path, inpstr))
+                    headers = self.get_headers(path, inpstr)
+                    headers["Content-type"] = "application/x-www-form-urlencoded"
+                    r = http.urlopen('POST', self.base+path, body=inpstr, headers=headers)
                     output = json.loads(r.data)
-                    print output
                 else:
                     req = self.makereq(path, inpstr)
                     response = urllib2.urlopen(req, inpstr)
