@@ -55,6 +55,6 @@ Utility
     
 Donate
 =================
-bitcoin address: 14DTHftDBvb1XSigevSYYNGmQ9iA182xor
+Bitcoin Address: 14DTHftDBvb1XSigevSYYNGmQ9iA182xor
 
 
