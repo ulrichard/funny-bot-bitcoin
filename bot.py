@@ -24,12 +24,12 @@ class Bot(object):
                 self.next_action = 'buy'
                 self.next_price = int(current_price*(1-self.trigger_percent))
                 print now(), 'sell ', amount
-        elif self.next_action=='buy' or random.random()>=0.99:
+        elif self.next_action=='buy':
             current_price = current_bid_price()
             print now(), 'run_once', my_btc, my_usd, current_price, self.next_action, self.next_price
             money = min(self.max_usd, my_usd)
             amount = int(money*1.0/current_price*rbtc)
-            if current_price<=self.next_price:
+            if current_price<=self.next_price or random.random()>=0.99:
                 print now(), 'begin buy', amount
                 print 'buy result', buy(amount)
                 self.next_action = 'sell'
