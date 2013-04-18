@@ -91,7 +91,7 @@ class Bot(object):
             amount = min(self.max_btc, my_btc)
             if current_price>=self.next_price or random.random()<=0.01:
                 print now(), 'begin sell ', amount
-                sell(amount)
+                print 'sell result', sell(amount)
                 self.next_action = 'buy'
                 self.next_price = int(current_price*(1-self.trigger_percent))
                 print now(), 'sell ', amount
@@ -99,10 +99,10 @@ class Bot(object):
             current_price = current_bid_price()
             print now(), 'run_once', my_btc, my_usd, current_price, self.next_action, self.next_price
             money = min(self.max_usd, my_usd)
-            amount = int(money*1.0/current_price)*rbtc
+            amount = int(money*1.0/current_price*rbtc)
             if current_price<=self.next_price:
                 print now(), 'begin buy', amount
-                buy(amount)
+                print 'buy result', buy(amount)
                 self.next_action = 'sell'
                 self.next_price = int(current_price*(1+self.trigger_percent))
                 print now(), 'buy', amount
@@ -111,9 +111,11 @@ class Bot(object):
         while 1:
             try:
                 self.run_once()
+                time.sleep(60)
+                print 'cancel all orders:', cancel_all()
             except:
                 print now(), "Error - ", get_err()
-            time.sleep(2*60)
+            time.sleep(60)
 
         
 if __name__=='__main__':
