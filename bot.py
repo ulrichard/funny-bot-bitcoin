@@ -1,4 +1,5 @@
 from func import *
+import random
 
 class Bot(object):
     def __init__(self, max_btc, max_usd, init_action, init_price, trigger_percent):
