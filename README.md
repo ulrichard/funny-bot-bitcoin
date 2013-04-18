@@ -21,7 +21,7 @@ How to use
     python main.py bot 2 200 sell 93.73 0.03
 
     * max_btc: max amount of btc to sell every time
-    * max_usd: max amount of usd to buy btc every time
+    * max_usd: max amount of USD($) to buy btc every time
     * init_action: action when start, 'sell' or 'buy'
     * init_price: price that trigger init_action
     * trigger_percent: price change percent to trigger bot action(sell or buy)
