@@ -3,6 +3,8 @@ funny-bot-bitcoin
 
 Funny Bot for Mtgox Bitcoin Auto Transaction
 
+* funny-bot-bitcoin is very fresh and it's strategy is VERY idiotic, 
+* funny-bot-bitcoin should just your starting point
 * You take Full responsibility for Your money and bitcoin.
 * You should understand what are you doing when you use funny-bot-bitcoin.
 
