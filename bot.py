@@ -39,9 +39,9 @@ class Bot(object):
         while 1:
             try:
                 self.run_once()
-                time.sleep(60)
-                print 'cancel all orders:', cancel_all()
+                #time.sleep(60)
+                #print 'cancel all orders:', cancel_all()
             except:
                 print now(), "Error - ", get_err()
-            time.sleep(60)
+            time.sleep(120)
 
