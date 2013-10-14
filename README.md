@@ -28,6 +28,22 @@ How to use
     * init_price: price that trigger init_action
     * trigger_percent: price change percent to trigger bot action(sell or buy)
 
+Bollinger Bands
+=================
+	The bot for bollinger bands works similar to the simple bot above, but decides to buy or sell, when the current price crosses the bollinger bands. With the current implementation if sells or buys all available funds.
+
+	Run the command below:
+
+    python main.py bollingerbot interval, lookback
+
+    demo:
+
+    python main.py bollingerbot 1 30
+
+    * interval: the periods duration in minutes
+    * lookback: the number of periods to look into the past for calculating the moving average
+
+
 How funny-bot-bitcoin work
 =================
 

@@ -1,48 +1,57 @@
 from func import *
 import random
+import pandas as pd
+import numpy as np
 
 class BollingerBot(object):
-    def __init__(self, max_btc, max_usd, init_action, init_price, trigger_percent):
-        print now(), 'init_bot', max_btc, max_usd, init_action, init_price, trigger_percent
-        self.max_btc = max_btc
-        self.max_usd = max_usd
-        self.trigger_percent = trigger_percent
-        self.next_action = init_action
-        self.next_price = init_price
+    def __init__(self, interval, lookback):
+        print now(), 'init_bot', interval, lookback
+        self.interval = interval
+        self.lookback = lookback
+        self.prices = pd.DataFrame([], index=['ask', 'bid'])
+
 
     def run_once(self):
-        wallets = get_wallets()
-        my_usd = int(wallets['USD']['Balance']['value_int'])
-        my_btc = int(wallets['BTC']['Balance']['value_int'])
-        if self.next_action=='sell':
-            current_price = current_ask_price()
-            print now(), 'run_once', my_btc, my_usd, current_price, self.next_action, self.next_price
-            amount = min(self.max_btc, my_btc)
-            if current_price>=self.next_price or random.random()<=0.01:
-                print now(), 'begin sell ', amount
-                print 'sell result', sell(amount)
-                self.next_action = 'buy'
-                self.next_price = int(current_price*(1-self.trigger_percent))
-                print now(), 'sell ', amount
-        elif self.next_action=='buy':
-            current_price = current_bid_price()
-            print now(), 'run_once', my_btc, my_usd, current_price, self.next_action, self.next_price
-            money = min(self.max_usd, my_usd)
-            amount = int(money*1.0/current_price*rbtc)
-            if current_price<=self.next_price or random.random()>=0.99:
-                print now(), 'begin buy', amount
-                print 'buy result', buy(amount)
-                self.next_action = 'sell'
-                self.next_price = int(current_price*(1+self.trigger_percent))
-                print now(), 'buy', amount
+		wallets = get_wallets()
+		my_usd = int(wallets['USD']['Balance']['value_int'])
+		my_btc = int(wallets['BTC']['Balance']['value_int'])
+
+		curr_ask = current_ask_price()
+		curr_bid = current_bid_price()
+		self.prices.append(pd.DataFrame([curr_ask, curr_bid], index=['ask', 'bid']))
+		if pd.rolling_count(self.prices['ask']) < self.lookback:
+			print 'only ', pd.rolling_count(self.prices['ask']), ' observations so far'
+			return
+
+		means = pd.rolling_mean(self.prices, self.lookback, min_periods = self.lookback)
+		stddev = pd.rolling_std(self.prices, self.lookback, min_periods = self.lookback)
+		lower = means - stddev
+		upper = means + stddev
+		normalized = (close - means) / stddev
+
+		timestamps = self.prices.index
+
+		# should we sell? 
+		bollinger_ask_now  = normalized['ask'].ix[ldt_timestamps[len(timestamps) - 1]]
+		bollinger_ask_last = normalized['ask'].ix[ldt_timestamps[len(timestamps) - 2]]
+		if bollinger_ask_now <= -2.0 and bollinger_ask_last >= -2.0:
+			print now(), 'begin sell ', my_btc
+			print 'sell result', sell(my_btc)
+
+		# should we buy? 
+		bollinger_bid_now  = normalized['bid'].ix[ldt_timestamps[len(timestamps) - 1]]
+		bollinger_bid_last = normalized['bid'].ix[ldt_timestamps[len(timestamps) - 2]]
+		if bollinger_bid_now >= 2.0 and bollinger_bid_last <= 2.0:
+			amount = int(my_usd / curr_bid)
+			print now(), 'begin buy ', amount
+			print 'sell result', buy(amount)
+
 
     def run(self):
         while 1:
             try:
                 self.run_once()
-                #time.sleep(60)
-                #print 'cancel all orders:', cancel_all()
             except:
                 print now(), "Error - ", get_err()
-            time.sleep(120)
+            time.sleep(60 * self.interval)
 
