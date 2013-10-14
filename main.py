@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 '''
 https://github.com/perol/funny-bot-bitcoin
 '''
@@ -67,6 +69,11 @@ if __name__=='__main__':
             trigger_percent = float(sys.argv[6])
             bot = Bot(max_btc, max_usd, init_action, init_price, trigger_percent)
             bot.run()
+		elif sys.argv[1]=='bollinger':
+            interval = int(float(sys.argv[2])) # minutes
+            lookback = int(float(sys.argv[3])) # intervals
+            bollbot = BollingerBot(interval, lookback)
+            bollbot.run()
         else:
             pass
 
