@@ -70,7 +70,7 @@ if __name__=='__main__':
             trigger_percent = float(sys.argv[6])
             bot = Bot(max_btc, max_usd, init_action, init_price, trigger_percent)
             bot.run()
-        elif sys.argv[1]=='bollinger':
+        elif sys.argv[1]=='bollingerbot':
             interval = int(float(sys.argv[2])) # minutes
             lookback = int(float(sys.argv[3])) # intervals
             bollbot = BollingerBot(interval, lookback)

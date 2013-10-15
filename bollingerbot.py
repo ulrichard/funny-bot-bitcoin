@@ -5,11 +5,15 @@ import numpy as np
 
 class BollingerBot(object):
     def __init__(self, interval, lookback):
-        print now(), 'init_bot', interval, lookback
-        self.interval = interval
-        self.lookback = lookback
-        self.prices = pd.DataFrame([], index=['ask', 'bid'])
+		print now(), 'init_bot', interval, lookback
+		self.interval = interval
+		self.lookback = lookback
 
+		self.prices = []
+		self.prices.append(np.zeros((1, 2)));
+		self.prices.append(np.zeros((1, 2)));
+
+		self.prices = pd.DataFrame(self.prices, index=[], columns=['ask', 'bid'])
 
     def run_once(self):
 		wallets = get_wallets()
@@ -18,7 +22,7 @@ class BollingerBot(object):
 
 		curr_ask = current_ask_price()
 		curr_bid = current_bid_price()
-		self.prices.append(pd.DataFrame([curr_ask, curr_bid], index=['ask', 'bid']))
+		self.prices.append(pd.DataFrame([curr_ask, curr_bid], columns=['ask', 'bid']))
 		if pd.rolling_count(self.prices['ask']) < self.lookback:
 			print 'only ', pd.rolling_count(self.prices['ask']), ' observations so far'
 			return

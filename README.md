@@ -30,7 +30,9 @@ How to use
 
 Bollinger Bands
 =================
-	The bot for bollinger bands works similar to the simple bot above, but decides to buy or sell, when the current price crosses the bollinger bands. With the current implementation if sells or buys all available funds.
+	The bot for bollinger bands works similar to the simple bot above, 
+	but decides to buy or sell, when the current price crosses the bollinger bands. 
+	With the current implementation it sells or buys all available funds.
 
 	Run the command below:
 
