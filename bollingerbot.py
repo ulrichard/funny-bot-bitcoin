@@ -1,7 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from func import *
 import random
 import pandas as pd
 import numpy as np
+import urllib, json
+from time import time
 
 class BollingerBot(object):
     def __init__(self, interval, lookback):
@@ -9,11 +14,42 @@ class BollingerBot(object):
 		self.interval = interval
 		self.lookback = lookback
 
-		self.prices = []
-		self.prices.append(np.zeros((1, 2)));
-		self.prices.append(np.zeros((1, 2)));
+		# init data struct
+		timestamps = []
+		for i in range(lookback):
+			timestamps.append((int(time()) / 60) - i * interval)
 
-		self.prices = pd.DataFrame(self.prices, index=[], columns=['ask', 'bid'])
+		all_data = np.zeros((lookback, 2))
+#		for i in range(2):
+#			all_data.append(np.zeros((lookback, 2)));
+#			all_data[i][:][:] = np.NAN
+
+		self.prices = pd.DataFrame(all_data, index=timestamps, columns=['ask', 'bid'])
+
+		# read the data for the last 12 hours
+		self.market = "mtgoxUSD"
+		link = 'http://bitcoincharts.com/t/trades.csv?symbol=%s&start=%d&end=%d' % (self.market,
+                                                                                    int(time() - 12 * 3600),
+                                                                                    int(time()))
+		http = urllib.urlopen(link)
+		rows = http.read().split('\n')
+		for row in rows:
+			row = row.split(',')
+			try:
+				timestamp = int(row[0] / 60)
+				if timestamp < (int(time()) / 60) - lookback * interval:
+					continue
+				value     = row[1]
+				ammount   = row[2]
+				self.prices[timestamp]['bid'] = max(self.prices[timestamp]['bid'], value)
+				self.prices[timestamp]['ask'] = min(self.prices[timestamp]['ask'], value)
+				#trades.append(tuple(map(float, row)[:2]))
+			except:
+				pass
+		print self.prices
+            
+
+		
 
     def run_once(self):
 		wallets = get_wallets()
